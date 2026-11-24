@@ -240,12 +240,17 @@ const ProviderRow = memo(
     });
 
     const backgroundStyle = useAnimatedStyle(() => {
-      const lifted = dragFrom.get() === index;
-      let opacity = isSelected ? 0.1 : 0;
-      if (pressed.get()) opacity = Math.max(opacity, 0.06);
-      if (lifted) opacity = 0.16;
-      return {backgroundColor: `rgba(255, 255, 255, ${opacity})`};
-    });
+  const lifted = dragFrom.get() === index;
+  let opacity = isSelected ? 0.11 : 0;
+  if (pressed.get()) opacity = Math.max(opacity, 0.06);
+  if (lifted) opacity = 0.16;
+
+  return {
+    backgroundColor: isSelected
+      ? `rgba(255, 30, 66, ${Math.max(opacity, 0.11)})`
+      : `rgba(255, 255, 255, ${opacity})`,
+  };
+});
 
     return (
       <GestureDetector gesture={gesture}>
@@ -259,13 +264,22 @@ const ProviderRow = memo(
           <Animated.View
             style={[
               {
-                alignItems: 'center',
-                borderRadius: 8,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-              },
+  alignItems: 'center',
+  borderRadius: 12,
+  borderWidth: 1,
+  borderColor: isSelected
+    ? 'rgba(255, 30, 66, 0.72)'
+    : 'rgba(255, 255, 255, 0.07)',
+  shadowColor: isSelected ? '#FF1E42' : 'transparent',
+  shadowOpacity: isSelected ? 0.22 : 0,
+  shadowRadius: isSelected ? 10 : 0,
+  shadowOffset: {width: 0, height: 0},
+  elevation: isSelected ? 3 : 0,
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+},
               backgroundStyle,
             ]}>
             <View style={{alignItems: 'center', flexDirection: 'row', flex: 1}}>
