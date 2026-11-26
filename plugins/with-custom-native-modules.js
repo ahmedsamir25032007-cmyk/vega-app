@@ -138,6 +138,7 @@ allprojects {
       'ProviderHttpPackage()',
       'RemoteDeliveryPackage()',
       'DlnaPackage()',
+      'GlassRefractionPackage()',
       'VideoIntentPackage()',
     ];
 
