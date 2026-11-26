@@ -18,9 +18,10 @@ type GlassRefractionNativeProps = {
   pulse: number;
 };
 
-const NativeGlassRefraction = Platform.OS === 'android'
-  ? requireNativeComponent<GlassRefractionNativeProps>('VegaGlassRefraction')
-  : null;
+const NativeGlassRefraction =
+  Platform.OS === 'android'
+    ? requireNativeComponent<GlassRefractionNativeProps>('VegaGlassRefraction')
+    : null;
 
 interface LiquidGlassSurfaceProps {
   children: ReactNode;
@@ -32,10 +33,9 @@ interface LiquidGlassSurfaceProps {
 /**
  * Reusable optical-glass treatment for Vega surfaces.
  *
- * This is the cross-platform material layer (backdrop blur, soft specular
- * highlights, edge tint and restrained depth). It intentionally does not
- * claim pixel refraction: true lens distortion requires a native backdrop
- * capture + shader pipeline and is handled as a separate platform layer.
+ * Cross-platform glass material with an Android 13+ native AGSL touch lens.
+ * Other platforms and older Android versions retain the blur, highlights,
+ * edge tint and animated water-ring fallback.
  */
 const LiquidGlassSurface = ({
   children,
@@ -70,7 +70,11 @@ const LiquidGlassSurface = ({
     // is unavailable; the surface clips both rings to its rounded outline.
     touchX.value = locationX;
     touchY.value = locationY;
-    setNativeTouch(previous => ({x: locationX, y: locationY, pulse: previous.pulse + 1}));
+    setNativeTouch(previous => ({
+      x: locationX,
+      y: locationY,
+      pulse: previous.pulse + 1,
+    }));
     waveRadius.value = Math.max(90, Math.hypot(width, height) * 0.72);
     cancelAnimation(waveSize);
     cancelAnimation(waveOpacity);
