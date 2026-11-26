@@ -1,5 +1,5 @@
-import React, {ReactNode, useCallback} from 'react';
-import {Platform, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
+import React, {ReactNode, useCallback, useState} from 'react';
+import {Platform, requireNativeComponent, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -9,6 +9,18 @@ import Animated, {
 } from 'react-native-reanimated';
 import {BlurView} from 'expo-blur';
 import LinearGradient from 'react-native-linear-gradient';
+
+
+type GlassRefractionNativeProps = {
+  style?: StyleProp<ViewStyle>;
+  touchX: number;
+  touchY: number;
+  pulse: number;
+};
+
+const NativeGlassRefraction = Platform.OS === 'android'
+  ? requireNativeComponent<GlassRefractionNativeProps>('VegaGlassRefraction')
+  : null;
 
 interface LiquidGlassSurfaceProps {
   children: ReactNode;
@@ -34,6 +46,7 @@ const LiquidGlassSurface = ({
   // A touch creates two soft travelling wavefronts, like a drop landing on
   // water. The overlay never captures input, so row reorder and tab gestures
   // continue to receive the original touch stream.
+  const [nativeTouch, setNativeTouch] = useState({x: 0, y: 0, pulse: 0});
   const touchX = useSharedValue(0);
   const touchY = useSharedValue(0);
   const waveSize = useSharedValue(0);
@@ -57,6 +70,7 @@ const LiquidGlassSurface = ({
     // is unavailable; the surface clips both rings to its rounded outline.
     touchX.value = locationX;
     touchY.value = locationY;
+    setNativeTouch(previous => ({x: locationX, y: locationY, pulse: previous.pulse + 1}));
     waveRadius.value = Math.max(90, Math.hypot(width, height) * 0.72);
     cancelAnimation(waveSize);
     cancelAnimation(waveOpacity);
@@ -140,6 +154,15 @@ const LiquidGlassSurface = ({
         end={{x: 0.88, y: 1}}
         style={StyleSheet.absoluteFill}
       />
+      {NativeGlassRefraction ? (
+        <NativeGlassRefraction
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
+          touchX={nativeTouch.x}
+          touchY={nativeTouch.y}
+          pulse={nativeTouch.pulse}
+        />
+      ) : null}
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <Animated.View
           pointerEvents="none"
