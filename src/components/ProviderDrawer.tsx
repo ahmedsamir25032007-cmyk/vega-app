@@ -79,7 +79,7 @@ const ProviderDrawer = ({
       style={{flex: 1, backgroundColor: isTV ? '#121214' : 'transparent'}}>
       {!isTV ? (
         <>
-          <BlurView tint="dark" intensity={58} style={StyleSheet.absoluteFill} />
+          <BlurView pointerEvents="none" tint="dark" intensity={58} style={StyleSheet.absoluteFill} />
           <View
             pointerEvents="none"
             style={[StyleSheet.absoluteFill, {backgroundColor: 'rgba(7,8,12,0.62)'}]}
