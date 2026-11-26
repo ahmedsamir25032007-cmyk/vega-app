@@ -35,12 +35,13 @@ const LiquidGlassSurface = ({
   const secondSize = useSharedValue(0);
   const secondOpacity = useSharedValue(0);
   const waveRadius = useSharedValue(1);
+  const surfaceWidth = useSharedValue(1);
+  const surfaceHeight = useSharedValue(1);
 
   const handleTouch = useCallback((event: any) => {
     const {locationX = 0, locationY = 0} = event.nativeEvent || {};
-    const {width = 1, height = 1} = event.nativeEvent?.target
-      ? event.nativeEvent.layout || {}
-      : {};
+    const width = surfaceWidth.value;
+    const height = surfaceHeight.value;
     // A conservative radius keeps the wave contained even when layout data
     // is unavailable; the surface clips both rings to its rounded outline.
     touchX.value = locationX;
@@ -58,7 +59,12 @@ const LiquidGlassSurface = ({
     waveOpacity.value = withTiming(0, {duration: 720});
     secondSize.value = withDelay(95, withTiming(1, {duration: 820}));
     secondOpacity.value = withDelay(95, withTiming(0, {duration: 820}));
-  }, [secondOpacity, secondSize, touchX, touchY, waveOpacity, waveRadius, waveSize]);
+  }, [secondOpacity, secondSize, surfaceHeight, surfaceWidth, touchX, touchY, waveOpacity, waveRadius, waveSize]);
+
+  const handleLayout = useCallback((event: any) => {
+    surfaceWidth.value = event.nativeEvent.layout.width;
+    surfaceHeight.value = event.nativeEvent.layout.height;
+  }, [surfaceHeight, surfaceWidth]);
 
   const firstWaveStyle = useAnimatedStyle(() => ({
     left: touchX.value - waveRadius.value,
@@ -85,7 +91,8 @@ const LiquidGlassSurface = ({
         style,
       ]}
       renderToHardwareTextureAndroid={Platform.OS === 'android'}
-      onTouchStart={handleTouch}>
+      onTouchStart={handleTouch}
+      onLayout={handleLayout}>
       <BlurView
         pointerEvents="none"
         tint="dark"
