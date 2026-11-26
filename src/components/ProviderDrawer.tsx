@@ -1,4 +1,5 @@
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {BlurView} from 'expo-blur';
 import {View, Text, BackHandler, findNodeHandle, StyleSheet} from 'react-native';
 // The gesture handler ScrollView lets a held row take over from scrolling.
 import {ScrollView} from 'react-native-gesture-handler';
@@ -75,7 +76,16 @@ const ProviderDrawer = ({
       trapFocusRight={true}
       trapFocusUp={true}
       trapFocusDown={true}
-      style={{flex: 1, backgroundColor: isTV ? '#121214' : 'rgba(0,0,0,0.85)'}}>
+      style={{flex: 1, backgroundColor: isTV ? '#121214' : 'transparent'}}>
+      {!isTV ? (
+        <>
+          <BlurView tint="dark" intensity={58} style={StyleSheet.absoluteFill} />
+          <View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, {backgroundColor: 'rgba(7,8,12,0.62)'}]}
+          />
+        </>
+      ) : null}
       <LiquidGlassSurface
         style={{
           marginHorizontal: 12,
