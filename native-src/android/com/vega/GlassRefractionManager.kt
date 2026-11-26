@@ -20,7 +20,7 @@ import kotlin.math.min
 /**
  * Touch-driven backdrop lens for LiquidGlassSurface.
  *
- * Captures the current app content once per touch (never continuously), then
+ * Captures the current glass backdrop once per touch (never continuously), then
  * uses an AGSL shader to bend pixels around the touch point for a short wave.
  * Android 13+ only. The JS material remains the fallback on older Android,
  * iOS and TV builds.
@@ -30,7 +30,6 @@ class GlassRefractionView(context: ThemedReactContext) :
 
     private var touchX = 0f
     private var touchY = 0f
-    private var pulse = 0
     private var lastPulse = 0
     private var startedAt = 0L
     private var framePosted = false
@@ -63,7 +62,8 @@ class GlassRefractionView(context: ThemedReactContext) :
                     float2 direction = delta / distanceToTouch;
                     float2 source = (p + origin) * scale
                         + direction * wave * strength * envelope * scale;
-                    return backdrop.eval(source);
+                    val sample = backdrop.eval(source)
+                    return half4(sample.rgb, envelope * 0.82);
                 }
                 """.trimIndent()
             )
