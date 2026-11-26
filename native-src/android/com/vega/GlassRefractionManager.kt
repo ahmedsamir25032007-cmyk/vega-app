@@ -103,6 +103,9 @@ class GlassRefractionView(context: ThemedReactContext) :
         }.getOrNull() ?: return
 
         val oldVisibility = visibility
+        val parentGroup = parent as? ViewGroup
+        val ownIndex = parentGroup?.indexOfChild(this) ?: -1
+        val hiddenSiblings = mutableListOf<Pair<View, Int>>()
         val rootLocation = IntArray(2)
         val viewLocation = IntArray(2)
         root.getLocationOnScreen(rootLocation)
@@ -111,9 +114,15 @@ class GlassRefractionView(context: ThemedReactContext) :
         originY = (viewLocation[1] - rootLocation[1]).toFloat()
 
         try {
-            // Hide only this overlay while drawing the existing app hierarchy,
-            // preventing recursive capture of the lens itself.
+            // Keep the backdrop layers, but omit this lens and later foreground siblings.
             visibility = INVISIBLE
+            if (parentGroup != null && ownIndex >= 0) {
+                for (index in ownIndex + 1 until parentGroup.childCount) {
+                    val sibling = parentGroup.getChildAt(index)
+                    hiddenSiblings += sibling to sibling.visibility
+                    sibling.visibility = INVISIBLE
+                }
+            }
             val canvas = Canvas(fresh)
             canvas.scale(sourceScale, sourceScale)
             root.draw(canvas)
@@ -122,6 +131,7 @@ class GlassRefractionView(context: ThemedReactContext) :
             return
         } finally {
             visibility = oldVisibility
+            hiddenSiblings.forEach { (sibling, oldState) -> sibling.visibility = oldState }
         }
 
         snapshot?.takeIf { !it.isRecycled }?.recycle()
