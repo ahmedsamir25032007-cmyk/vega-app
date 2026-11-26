@@ -4,10 +4,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import {GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
   Easing,
+  cancelAnimation,
   runOnJS,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 import {
@@ -93,6 +95,15 @@ export function GlassTabBar({
 
   const hideProgress = useSharedValue(hidden ? 1 : 0);
   const windowWidthShared = useSharedValue(windowWidth);
+  const rippleX = useSharedValue(0);
+  const rippleY = useSharedValue(0);
+  const rippleRadius = useSharedValue(1);
+  const rippleWidth = useSharedValue(1);
+  const rippleHeight = useSharedValue(1);
+  const rippleScale = useSharedValue(0);
+  const rippleOpacity = useSharedValue(0);
+  const rippleScale2 = useSharedValue(0);
+  const rippleOpacity2 = useSharedValue(0);
 
   useEffect(() => {
     windowWidthShared.set(windowWidth);
@@ -129,6 +140,45 @@ export function GlassTabBar({
       ),
     );
   }, [handleHideFinished, hidden, hideProgress, reducedMotion]);
+
+  const handleRippleTouch = useCallback((event: any) => {
+    const touch =
+      event.nativeEvent?.changedTouches?.[0] ??
+      event.nativeEvent?.touches?.[0] ??
+      event.nativeEvent;
+    rippleX.value = touch?.locationX ?? 0;
+    rippleY.value = touch?.locationY ?? 0;
+    rippleRadius.value = Math.max(72, Math.hypot(rippleWidth.value, rippleHeight.value) * 0.72);
+    cancelAnimation(rippleScale);
+    cancelAnimation(rippleOpacity);
+    cancelAnimation(rippleScale2);
+    cancelAnimation(rippleOpacity2);
+    rippleScale.value = 0.035;
+    rippleOpacity.value = 0.23;
+    rippleScale2.value = 0.02;
+    rippleOpacity2.value = 0.14;
+    rippleScale.value = withTiming(1, {duration: 680});
+    rippleOpacity.value = withTiming(0, {duration: 680});
+    rippleScale2.value = withDelay(90, withTiming(1, {duration: 790}));
+    rippleOpacity2.value = withDelay(90, withTiming(0, {duration: 790}));
+  }, [rippleHeight, rippleOpacity, rippleOpacity2, rippleRadius, rippleScale, rippleScale2, rippleWidth, rippleX, rippleY]);
+
+  const rippleStyle = useAnimatedStyle(() => ({
+    left: rippleX.value - rippleRadius.value,
+    top: rippleY.value - rippleRadius.value,
+    width: rippleRadius.value * 2,
+    height: rippleRadius.value * 2,
+    opacity: rippleOpacity.value,
+    transform: [{scale: rippleScale.value}],
+  }));
+  const rippleStyle2 = useAnimatedStyle(() => ({
+    left: rippleX.value - rippleRadius.value,
+    top: rippleY.value - rippleRadius.value,
+    width: rippleRadius.value * 2,
+    height: rippleRadius.value * 2,
+    opacity: rippleOpacity2.value,
+    transform: [{scale: rippleScale2.value}],
+  }));
 
   const subpageStyle = useAnimatedStyle(() => {
     const progress = hideProgress.get();
@@ -186,7 +236,12 @@ export function GlassTabBar({
         ]}>
         <GestureDetector gesture={gesture}>
           <View
-            onLayout={event => handleBarLayout(event.nativeEvent.layout.width)}
+            onTouchStart={handleRippleTouch}
+            onLayout={event => {
+              handleBarLayout(event.nativeEvent.layout.width);
+              rippleWidth.value = event.nativeEvent.layout.width;
+              rippleHeight.value = event.nativeEvent.layout.height;
+            }}
             style={[
               styles.glassBar,
               {
@@ -215,6 +270,8 @@ export function GlassTabBar({
                 colors={['rgba(44, 44, 48, 0.46)', 'rgba(22, 22, 26, 0.46)']}
                 style={StyleSheet.absoluteFill}
               />
+              <Animated.View pointerEvents="none" style={[styles.waterRipple, rippleStyle]} />
+              <Animated.View pointerEvents="none" style={[styles.waterRipple, styles.waterRippleSecond, rippleStyle2]} />
             </View>
             <Animated.View
               pointerEvents="none"
@@ -308,6 +365,23 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(255, 255, 255, 0.09)',
     overflow: 'hidden',
+  },
+  waterRipple: {
+    position: 'absolute',
+    borderRadius: 999,
+    borderWidth: 1.2,
+    borderColor: 'rgba(235,248,255,0.72)',
+    backgroundColor: 'rgba(220,242,255,0.035)',
+    shadowColor: '#D8F4FF',
+    shadowOpacity: 0.42,
+    shadowRadius: 8,
+    shadowOffset: {width: 0, height: 0},
+  },
+  waterRippleSecond: {
+    borderWidth: 0.8,
+    borderColor: 'rgba(255,255,255,0.38)',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
   },
   glassSelection: {
     position: 'absolute',
