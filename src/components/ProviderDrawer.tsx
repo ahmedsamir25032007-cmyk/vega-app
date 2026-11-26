@@ -1,5 +1,5 @@
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {View, Text, BackHandler, findNodeHandle} from 'react-native';
+import {View, Text, BackHandler, findNodeHandle, StyleSheet} from 'react-native';
 // The gesture handler ScrollView lets a held row take over from scrolling.
 import {ScrollView} from 'react-native-gesture-handler';
 import React, {useEffect} from 'react';
@@ -11,6 +11,7 @@ import {TVFocusable, TVFocusGuide} from './tv';
 import {useTVFocusBorderColor} from '../lib/tv/useTVFocusBorderColor';
 import ProviderIcon from './ProviderIcon';
 import ReorderableProviderList from './ReorderableProviderList';
+import LiquidGlassSurface from './LiquidGlassSurface';
 
 interface ProviderDrawerProps {
   onClose: () => void;
@@ -75,18 +76,19 @@ const ProviderDrawer = ({
       trapFocusUp={true}
       trapFocusDown={true}
       style={{flex: 1, backgroundColor: isTV ? '#121214' : 'rgba(0,0,0,0.85)'}}>
-      <View
+      <LiquidGlassSurface
         style={{
-          borderBottomColor: 'rgba(255,255,255,0.1)',
-          borderBottomWidth: 1,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingBottom: 16,
-          paddingHorizontal: 16,
-          paddingTop: isTV ? 28 : insets.top + 12,
+          marginHorizontal: 12,
+          marginTop: isTV ? 16 : insets.top + 8,
+          marginBottom: 12,
+          borderRadius: 20,
+        }}
+        contentStyle={{
+          minHeight: 76,
+          paddingHorizontal: 18,
+          paddingVertical: 14,
         }}>
-        <View>
+        <View style={{flex: 1}}>
           <Text className="text-white text-2xl font-bold">Select Provider</Text>
           <Text className="text-gray-400 mt-1 text-sm">Content source</Text>
         </View>
@@ -104,7 +106,9 @@ const ProviderDrawer = ({
             focusBorderColor={focusBorderColor}
             style={{
               alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'rgba(255,255,255,0.10)',
+              borderColor: 'rgba(255,255,255,0.16)',
+              borderWidth: StyleSheet.hairlineWidth,
               borderRadius: 20,
               height: 40,
               justifyContent: 'center',
@@ -113,7 +117,7 @@ const ProviderDrawer = ({
             <MaterialIcons name="close" size={24} color="#FFFFFF" />
           </TVFocusable>
         ) : null}
-      </View>
+      </LiquidGlassSurface>
 
       <TVFocusGuide
         autoFocus={true}
@@ -158,9 +162,12 @@ const ProviderDrawer = ({
                     paddingVertical: 13,
                   }}>
                   {({focused}) => (
-                    <>
+                    <LiquidGlassSurface
+                      selected={isSelected}
+                      style={{flex: 1, borderRadius: 14}}
+                      contentStyle={{minHeight: 54, paddingHorizontal: 16}}>
                       <View
-                        style={{alignItems: 'center', flexDirection: 'row'}}>
+                        style={{alignItems: 'center', flexDirection: 'row', flex: 1}}>
                         <ProviderIcon
                           uri={item.icon}
                           name={item.display_name}
@@ -182,7 +189,7 @@ const ProviderDrawer = ({
                       {isSelected && (
                         <MaterialIcons name="check" size={22} color={primary} />
                       )}
-                    </>
+                    </LiquidGlassSurface>
                   )}
                 </TVFocusable>
               );
