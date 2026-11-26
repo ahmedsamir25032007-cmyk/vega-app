@@ -1,5 +1,5 @@
 import React, {ReactNode, useCallback, useState} from 'react';
-import {Platform, requireNativeComponent, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
+import {Platform, requireNativeComponent, StyleProp, StyleSheet, View, ViewProps, ViewStyle} from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -11,8 +11,7 @@ import {BlurView} from 'expo-blur';
 import LinearGradient from 'react-native-linear-gradient';
 
 
-type GlassRefractionNativeProps = {
-  style?: StyleProp<ViewStyle>;
+type GlassRefractionNativeProps = ViewProps & {
   touchX: number;
   touchY: number;
   pulse: number;
