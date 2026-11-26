@@ -2,10 +2,8 @@ import {StyleSheet, View} from 'react-native';
 import React, {memo} from 'react';
 import {BlurView} from 'expo-blur';
 import LinearGradient from 'react-native-linear-gradient';
-import {useM3Colors} from '../theme/M3PaletteContext';
 
 const TabBarBackgound = memo(() => {
-  const colors = useM3Colors();
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <BlurView
