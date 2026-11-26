@@ -7,6 +7,7 @@ interface LiquidGlassSurfaceProps {
   children: ReactNode;
   selected?: boolean;
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -21,6 +22,7 @@ const LiquidGlassSurface = ({
   children,
   selected = false,
   style,
+  contentStyle,
 }: LiquidGlassSurfaceProps) => {
   return (
     <View
@@ -58,7 +60,7 @@ const LiquidGlassSurface = ({
       />
       <View pointerEvents="none" style={styles.topRim} />
       <View pointerEvents="none" style={styles.bottomRim} />
-      <View style={styles.content}>{children}</View>
+      <View style={[styles.content, contentStyle]}>{children}</View>
     </View>
   );
 };
