@@ -1,6 +1,12 @@
 import React, {ReactNode, useCallback} from 'react';
 import {Platform, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
-import Animated, {cancelAnimation, useAnimatedStyle, useSharedValue, withDelay, withTiming} from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import {BlurView} from 'expo-blur';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -39,7 +45,12 @@ const LiquidGlassSurface = ({
   const surfaceHeight = useSharedValue(1);
 
   const handleTouch = useCallback((event: any) => {
-    const {locationX = 0, locationY = 0} = event.nativeEvent || {};
+    const touch =
+      event.nativeEvent?.changedTouches?.[0] ??
+      event.nativeEvent?.touches?.[0] ??
+      event.nativeEvent;
+    const locationX = touch?.locationX ?? 0;
+    const locationY = touch?.locationY ?? 0;
     const width = surfaceWidth.value;
     const height = surfaceHeight.value;
     // A conservative radius keeps the wave contained even when layout data
@@ -59,7 +70,17 @@ const LiquidGlassSurface = ({
     waveOpacity.value = withTiming(0, {duration: 720});
     secondSize.value = withDelay(95, withTiming(1, {duration: 820}));
     secondOpacity.value = withDelay(95, withTiming(0, {duration: 820}));
-  }, [secondOpacity, secondSize, surfaceHeight, surfaceWidth, touchX, touchY, waveOpacity, waveRadius, waveSize]);
+  }, [
+    secondOpacity,
+    secondSize,
+    surfaceHeight,
+    surfaceWidth,
+    touchX,
+    touchY,
+    waveOpacity,
+    waveRadius,
+    waveSize,
+  ]);
 
   const handleLayout = useCallback((event: any) => {
     surfaceWidth.value = event.nativeEvent.layout.width;
@@ -120,8 +141,14 @@ const LiquidGlassSurface = ({
         style={StyleSheet.absoluteFill}
       />
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <Animated.View pointerEvents="none" style={[styles.waterWave, firstWaveStyle]} />
-        <Animated.View pointerEvents="none" style={[styles.waterWave, styles.waterWaveSecond, secondWaveStyle]} />
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.waterWave, firstWaveStyle]}
+        />
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.waterWave, styles.waterWaveSecond, secondWaveStyle]}
+        />
       </View>
       <View pointerEvents="none" style={styles.topRim} />
       <View pointerEvents="none" style={styles.bottomRim} />
