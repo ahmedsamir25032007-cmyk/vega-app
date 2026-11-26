@@ -76,10 +76,8 @@ class GlassRefractionView(context: ThemedReactContext) :
         setWillNotDraw(false)
     }
 
-    fun setTouch(x: Float, y: Float) {
-        touchX = x.coerceAtLeast(0f) * resources.displayMetrics.density
-        touchY = y.coerceAtLeast(0f) * resources.displayMetrics.density
-    }
+    fun setTouchX(x: Float) { touchX = x.coerceAtLeast(0f) * resources.displayMetrics.density }
+    fun setTouchY(y: Float) { touchY = y.coerceAtLeast(0f) * resources.displayMetrics.density }
 
     fun setPulse(value: Int) {
         if (value == lastPulse) return
@@ -186,15 +184,13 @@ class GlassRefractionManager : SimpleViewManager<GlassRefractionView>() {
 
     @ReactProp(name = "touchX", defaultFloat = 0f)
     fun setTouchX(view: GlassRefractionView, value: Float) {
-        view.setTouch(value, 0f)
+        view.setTouchX(value)
     }
 
     @ReactProp(name = "touchY", defaultFloat = 0f)
     fun setTouchY(view: GlassRefractionView, value: Float) {
-        view.setTouch(viewTouchX(view), value)
+        view.setTouchY(value)
     }
-
-    private fun viewTouchX(view: GlassRefractionView): Float = 0f
 
     @ReactProp(name = "pulse", defaultInt = 0)
     fun setPulse(view: GlassRefractionView, value: Int) {
