@@ -19,6 +19,7 @@ import {
   sortInstalledProviders,
 } from '../lib/providerOrder';
 import ProviderIcon from './ProviderIcon';
+import LiquidGlassSurface from './LiquidGlassSurface';
 
 const LONG_PRESS_MS = 300;
 const SETTLE_MS = 120;
@@ -263,45 +264,31 @@ const ProviderRow = memo(
           accessibilityState={{selected: isSelected}}>
           <Animated.View
             style={[
-              {
-  alignItems: 'center',
-  borderRadius: 12,
-  borderWidth: 1,
-  borderColor: isSelected
-    ? 'rgba(255, 30, 66, 0.72)'
-    : 'rgba(255, 255, 255, 0.07)',
-  shadowColor: isSelected ? '#FF1E42' : 'transparent',
-  shadowOpacity: isSelected ? 0.22 : 0,
-  shadowRadius: isSelected ? 10 : 0,
-  shadowOffset: {width: 0, height: 0},
-  elevation: isSelected ? 3 : 0,
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  paddingHorizontal: 16,
-  paddingVertical: 14,
-},
+              {borderRadius: 14, overflow: 'hidden'},
               backgroundStyle,
             ]}>
-            <View style={{alignItems: 'center', flexDirection: 'row', flex: 1}}>
-              <ProviderIcon
-                uri={item.icon}
-                name={item.display_name}
-                size={20}
-                background="rgba(255, 255, 255, 0.08)"
-                color={isSelected ? primary : '#888'}
-              />
-              <Text
-                numberOfLines={1}
-                className={`ml-2.5 text-[15.5px] ${
-                  isSelected ? 'text-white font-medium' : 'text-gray-400'
-                }`}
-                style={{flexShrink: 1}}>
-                {item.display_name}
-              </Text>
-            </View>
-            {isSelected && (
-              <MaterialIcons name="check" size={20} color={primary} />
-            )}
+            <LiquidGlassSurface selected={isSelected}>
+              <View style={{alignItems: 'center', flexDirection: 'row', flex: 1}}>
+                <ProviderIcon
+                  uri={item.icon}
+                  name={item.display_name}
+                  size={20}
+                  background="rgba(255, 255, 255, 0.08)"
+                  color={isSelected ? primary : '#888'}
+                />
+                <Text
+                  numberOfLines={1}
+                  className={`ml-2.5 text-[15.5px] ${
+                    isSelected ? 'text-white font-medium' : 'text-gray-400'
+                  }`}
+                  style={{flexShrink: 1}}>
+                  {item.display_name}
+                </Text>
+              </View>
+              {isSelected && (
+                <MaterialIcons name="check" size={20} color={primary} />
+              )}
+            </LiquidGlassSurface>
           </Animated.View>
         </Animated.View>
       </GestureDetector>
