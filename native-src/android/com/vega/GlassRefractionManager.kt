@@ -62,8 +62,8 @@ class GlassRefractionView(context: ThemedReactContext) :
                     float2 direction = delta / distanceToTouch;
                     float2 source = (p + origin) * scale
                         + direction * wave * strength * envelope * scale;
-                    val sample = backdrop.eval(source)
-                    return half4(sample.rgb, envelope * 0.82);
+                    half4 backdropColor = backdrop.eval(source);
+                    return half4(backdropColor.rgb, envelope * 0.82);;
                 }
                 """.trimIndent()
             )
