@@ -327,7 +327,7 @@ export class SettingsStorage {
   }
 
   isGlassTabBarEnabled(): boolean {
-    return mainStorage.getBool(SettingsKeys.GLASS_TAB_BAR, false);
+    return mainStorage.getBool(SettingsKeys.GLASS_TAB_BAR, true);
   }
 
   setGlassTabBarEnabled(enabled: boolean): void {
