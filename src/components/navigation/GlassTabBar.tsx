@@ -18,7 +18,9 @@ import {
   Platform,
   StyleSheet,
   useWindowDimensions,
+  requireNativeComponent,
   View,
+  ViewProps,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import AppText from '../ui/Text';
@@ -49,6 +51,17 @@ interface GlassTabBarProps {
   onSelect: (index: number, options?: {skipHaptic?: boolean}) => boolean;
 }
 
+type GlassRefractionNativeProps = ViewProps & {
+  touchX: number;
+  touchY: number;
+  active: boolean;
+};
+
+const NativeGlassRefraction =
+  Platform.OS === 'android'
+    ? requireNativeComponent<GlassRefractionNativeProps>('VegaGlassRefraction')
+    : null;
+
 const SUBPAGE_TRANSITION_MS = 200;
 
 export function GlassTabBar({
@@ -66,6 +79,7 @@ export function GlassTabBar({
   const rtl = I18nManager.isRTL;
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [blurActive, setBlurActive] = useState(!hidden);
+  const [nativeTouch, setNativeTouch] = useState({x: 0, y: 0, active: false});
   const hiddenRef = useRef(hidden);
 
   useEffect(() => {
@@ -146,8 +160,11 @@ export function GlassTabBar({
       event.nativeEvent?.changedTouches?.[0] ??
       event.nativeEvent?.touches?.[0] ??
       event.nativeEvent;
-    rippleX.value = touch?.locationX ?? 0;
-    rippleY.value = touch?.locationY ?? 0;
+    const x = Math.max(0, touch?.locationX ?? 0);
+    const y = Math.max(0, touch?.locationY ?? 0);
+    rippleX.value = x;
+    rippleY.value = y;
+    setNativeTouch({x, y, active: true});
     rippleRadius.value = Math.max(72, Math.hypot(rippleWidth.value, rippleHeight.value) * 0.72);
     cancelAnimation(rippleScale);
     cancelAnimation(rippleOpacity);
@@ -162,6 +179,24 @@ export function GlassTabBar({
     rippleScale2.value = withDelay(90, withTiming(1, {duration: 790}));
     rippleOpacity2.value = withDelay(90, withTiming(0, {duration: 790}));
   }, [rippleHeight, rippleOpacity, rippleOpacity2, rippleRadius, rippleScale, rippleScale2, rippleWidth, rippleX, rippleY]);
+
+  const handleGlassTouchMove = useCallback((event: any) => {
+    const touch =
+      event.nativeEvent?.changedTouches?.[0] ??
+      event.nativeEvent?.touches?.[0] ??
+      event.nativeEvent;
+    const x = Math.max(0, touch?.locationX ?? 0);
+    const y = Math.max(0, touch?.locationY ?? 0);
+    setNativeTouch(previous =>
+      previous.active ? {...previous, x, y} : previous,
+    );
+  }, []);
+
+  const handleGlassTouchEnd = useCallback(() => {
+    setNativeTouch(previous =>
+      previous.active ? {...previous, active: false} : previous,
+    );
+  }, []);
 
   const rippleStyle = useAnimatedStyle(() => ({
     left: rippleX.value - rippleRadius.value,
@@ -237,6 +272,9 @@ export function GlassTabBar({
         <GestureDetector gesture={gesture}>
           <View
             onTouchStart={handleRippleTouch}
+            onTouchMove={handleGlassTouchMove}
+            onTouchEnd={handleGlassTouchEnd}
+            onTouchCancel={handleGlassTouchEnd}
             onLayout={event => {
               handleBarLayout(event.nativeEvent.layout.width);
               rippleWidth.value = event.nativeEvent.layout.width;
@@ -270,6 +308,15 @@ export function GlassTabBar({
                 colors={['rgba(44, 44, 48, 0.46)', 'rgba(22, 22, 26, 0.46)']}
                 style={StyleSheet.absoluteFill}
               />
+              {NativeGlassRefraction ? (
+                <NativeGlassRefraction
+                  pointerEvents="none"
+                  style={StyleSheet.absoluteFill}
+                  touchX={nativeTouch.x}
+                  touchY={nativeTouch.y}
+                  active={nativeTouch.active}
+                />
+              ) : null}
               <Animated.View pointerEvents="none" style={[styles.waterRipple, rippleStyle]} />
               <Animated.View pointerEvents="none" style={[styles.waterRipple, styles.waterRippleSecond, rippleStyle2]} />
             </View>
