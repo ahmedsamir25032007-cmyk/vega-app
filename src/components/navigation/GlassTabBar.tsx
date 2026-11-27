@@ -305,7 +305,7 @@ export function GlassTabBar({
                 />
               )}
               <LinearGradient
-                colors={['rgba(44, 44, 48, 0.46)', 'rgba(22, 22, 26, 0.46)']}
+                colors={['rgba(44, 44, 48, 0.22)', 'rgba(22, 22, 26, 0.18)']}
                 style={StyleSheet.absoluteFill}
               />
               <Animated.View pointerEvents="none" style={[styles.waterRipple, rippleStyle]} />
