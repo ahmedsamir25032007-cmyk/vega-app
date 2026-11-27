@@ -177,9 +177,9 @@ const LiquidGlassSurface = ({
                 'rgba(255,255,255,0.018)',
               ]
             : [
-                'rgba(255,255,255,0.105)',
+                'rgba(255,255,255,0.16)',
+                'rgba(255,255,255,0.045)',
                 'rgba(255,255,255,0.025)',
-                'rgba(255,255,255,0.012)',
               ]
         }
         locations={[0, 0.42, 1]}
@@ -222,11 +222,11 @@ const styles = StyleSheet.create({
   },
   idle: {
     borderColor: 'rgba(255,255,255,0.13)',
-    backgroundColor: 'rgba(255,255,255,0.045)',
+    backgroundColor: 'rgba(255,255,255,0.085)',
   },
   selected: {
     borderColor: 'rgba(255,74,101,0.72)',
-    backgroundColor: 'rgba(255,30,66,0.095)',
+    backgroundColor: 'rgba(255,30,66,0.14)',
     shadowColor: '#FF1E42',
     shadowOpacity: 0.2,
     shadowRadius: 12,
