@@ -82,7 +82,7 @@ const ProviderDrawer = ({
           <BlurView pointerEvents="none" tint="dark" intensity={58} style={StyleSheet.absoluteFill} />
           <View
             pointerEvents="none"
-            style={[StyleSheet.absoluteFill, {backgroundColor: 'rgba(7,8,12,0.62)'}]}
+            style={[StyleSheet.absoluteFill, {backgroundColor: 'rgba(7,8,12,0.34)'}]}
           />
         </>
       ) : null}
