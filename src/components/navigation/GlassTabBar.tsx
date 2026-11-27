@@ -308,18 +308,18 @@ export function GlassTabBar({
                 colors={['rgba(44, 44, 48, 0.46)', 'rgba(22, 22, 26, 0.46)']}
                 style={StyleSheet.absoluteFill}
               />
-              {NativeGlassRefraction ? (
-                <NativeGlassRefraction
-                  pointerEvents="none"
-                  style={StyleSheet.absoluteFill}
-                  touchX={nativeTouch.x}
-                  touchY={nativeTouch.y}
-                  active={nativeTouch.active}
-                />
-              ) : null}
               <Animated.View pointerEvents="none" style={[styles.waterRipple, rippleStyle]} />
               <Animated.View pointerEvents="none" style={[styles.waterRipple, styles.waterRippleSecond, rippleStyle2]} />
             </View>
+            {NativeGlassRefraction ? (
+              <NativeGlassRefraction
+                pointerEvents="none"
+                style={StyleSheet.absoluteFill}
+                touchX={nativeTouch.x}
+                touchY={nativeTouch.y}
+                active={nativeTouch.active}
+              />
+            ) : null}
             <Animated.View
               pointerEvents="none"
               style={[
