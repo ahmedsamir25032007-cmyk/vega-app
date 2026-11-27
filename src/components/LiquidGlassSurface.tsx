@@ -164,6 +164,7 @@ const LiquidGlassSurface = ({
         pointerEvents="none"
         tint="dark"
         intensity={Platform.OS === 'android' ? 34 : 42}
+        blurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
         style={StyleSheet.absoluteFill}
       />
       <LinearGradient
