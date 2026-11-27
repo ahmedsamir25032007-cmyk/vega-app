@@ -1,5 +1,13 @@
 import React, {ReactNode, useCallback, useState} from 'react';
-import {Platform, requireNativeComponent, StyleProp, StyleSheet, View, ViewProps, ViewStyle} from 'react-native';
+import {
+  Platform,
+  requireNativeComponent,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewProps,
+  ViewStyle,
+} from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -10,11 +18,10 @@ import Animated, {
 import {BlurView} from 'expo-blur';
 import LinearGradient from 'react-native-linear-gradient';
 
-
 type GlassRefractionNativeProps = ViewProps & {
   touchX: number;
   touchY: number;
-  pulse: number;
+  active: boolean;
 };
 
 const NativeGlassRefraction =
@@ -30,11 +37,11 @@ interface LiquidGlassSurfaceProps {
 }
 
 /**
- * Reusable optical-glass treatment for Vega surfaces.
+ * Independent optical-glass material for Vega.
  *
- * Cross-platform glass material with an Android 13+ native AGSL touch lens.
- * Other platforms and older Android versions retain the blur, highlights,
- * edge tint and animated water-ring fallback.
+ * Android 13+ uses a native AGSL lens over a one-shot backdrop capture.
+ * The lens follows the pointer while pressed and settles smoothly on release.
+ * Other platforms retain the translucent material and animated water rings.
  */
 const LiquidGlassSurface = ({
   children,
@@ -42,10 +49,11 @@ const LiquidGlassSurface = ({
   style,
   contentStyle,
 }: LiquidGlassSurfaceProps) => {
-  // A touch creates two soft travelling wavefronts, like a drop landing on
-  // water. The overlay never captures input, so row reorder and tab gestures
-  // continue to receive the original touch stream.
-  const [nativeTouch, setNativeTouch] = useState({x: 0, y: 0, pulse: 0});
+  const [nativeTouch, setNativeTouch] = useState({
+    x: 0,
+    y: 0,
+    active: false,
+  });
   const touchX = useSharedValue(0);
   const touchY = useSharedValue(0);
   const waveSize = useSharedValue(0);
@@ -56,38 +64,41 @@ const LiquidGlassSurface = ({
   const surfaceWidth = useSharedValue(1);
   const surfaceHeight = useSharedValue(1);
 
-  const handleTouch = useCallback((event: any) => {
+  const readTouch = useCallback((event: any) => {
     const touch =
       event.nativeEvent?.changedTouches?.[0] ??
       event.nativeEvent?.touches?.[0] ??
       event.nativeEvent;
-    const locationX = touch?.locationX ?? 0;
-    const locationY = touch?.locationY ?? 0;
-    const width = surfaceWidth.value;
-    const height = surfaceHeight.value;
-    // A conservative radius keeps the wave contained even when layout data
-    // is unavailable; the surface clips both rings to its rounded outline.
-    touchX.value = locationX;
-    touchY.value = locationY;
-    setNativeTouch(previous => ({
-      x: locationX,
-      y: locationY,
-      pulse: previous.pulse + 1,
-    }));
-    waveRadius.value = Math.max(90, Math.hypot(width, height) * 0.72);
+    return {
+      x: Math.max(0, touch?.locationX ?? 0),
+      y: Math.max(0, touch?.locationY ?? 0),
+    };
+  }, []);
+
+  const handleTouchStart = useCallback((event: any) => {
+    const point = readTouch(event);
+    touchX.value = point.x;
+    touchY.value = point.y;
+    setNativeTouch({...point, active: true});
+
+    waveRadius.value = Math.max(
+      90,
+      Math.hypot(surfaceWidth.value, surfaceHeight.value) * 0.72,
+    );
     cancelAnimation(waveSize);
     cancelAnimation(waveOpacity);
     cancelAnimation(secondSize);
     cancelAnimation(secondOpacity);
-    waveSize.value = 0.04;
-    waveOpacity.value = 0.24;
+    waveSize.value = 0.035;
+    waveOpacity.value = 0.2;
     secondSize.value = 0.02;
-    secondOpacity.value = 0.15;
+    secondOpacity.value = 0.12;
     waveSize.value = withTiming(1, {duration: 720});
     waveOpacity.value = withTiming(0, {duration: 720});
     secondSize.value = withDelay(95, withTiming(1, {duration: 820}));
     secondOpacity.value = withDelay(95, withTiming(0, {duration: 820}));
   }, [
+    readTouch,
     secondOpacity,
     secondSize,
     surfaceHeight,
@@ -98,6 +109,21 @@ const LiquidGlassSurface = ({
     waveRadius,
     waveSize,
   ]);
+
+  const handleTouchMove = useCallback((event: any) => {
+    const point = readTouch(event);
+    touchX.value = point.x;
+    touchY.value = point.y;
+    setNativeTouch(previous =>
+      previous.active ? {...point, active: true} : previous,
+    );
+  }, [readTouch, touchX, touchY]);
+
+  const handleTouchEnd = useCallback(() => {
+    setNativeTouch(previous =>
+      previous.active ? {...previous, active: false} : previous,
+    );
+  }, []);
 
   const handleLayout = useCallback((event: any) => {
     surfaceWidth.value = event.nativeEvent.layout.width;
@@ -129,7 +155,10 @@ const LiquidGlassSurface = ({
         style,
       ]}
       renderToHardwareTextureAndroid={Platform.OS === 'android'}
-      onTouchStart={handleTouch}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
       onLayout={handleLayout}>
       <BlurView
         pointerEvents="none"
@@ -163,7 +192,7 @@ const LiquidGlassSurface = ({
           style={StyleSheet.absoluteFill}
           touchX={nativeTouch.x}
           touchY={nativeTouch.y}
-          pulse={nativeTouch.pulse}
+          active={nativeTouch.active}
         />
       ) : null}
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
