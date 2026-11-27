@@ -287,20 +287,20 @@ export function GlassTabBar({
                 borderRadius: pillRadius,
                 paddingHorizontal: GLASS_BAR_PADDING,
                 backgroundColor:
-                  Platform.OS === 'ios' || blurTarget
+                  Platform.OS === 'ios' || Platform.OS === 'android' || blurTarget
                     ? 'transparent'
                     : 'rgba(22, 22, 26, 0.88)',
               },
             ]}>
             <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-              {blurActive && (Platform.OS === 'ios' || blurTarget) && (
+              {blurActive && (Platform.OS === 'ios' || Platform.OS === 'android' || blurTarget) && (
                 <BlurView
                   key={items[selectedIndex]?.key}
                   style={StyleSheet.absoluteFill}
                   tint="systemChromeMaterialDark"
                   intensity={75}
                   blurReductionFactor={3.5}
-                  blurMethod={blurTarget ? 'dimezisBlurView' : undefined}
+                  blurMethod={Platform.OS === 'android' || blurTarget ? 'dimezisBlurView' : undefined}
                   blurTarget={blurTarget ? {current: blurTarget} : undefined}
                 />
               )}
